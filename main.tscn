@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://d0d6sona2watx"]
+
+[ext_resource type="Script" uid="uid://b3gh4n2qlq4q5" path="res://Main.gd" id="2_tz3c8"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7dm0k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7dm0k"]
+albedo_color = Color(0.54902, 0.54902, 0, 1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("2_tz3c8")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.25, 0.433013, 0, 0.866025, -0.5, -0.5, 0.433013, 0.75, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_7dm0k")
+surface_material_override/0 = SubResource("StandardMaterial3D_7dm0k")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MeshInstance3D"]
+
+[node name="Pet" type="Node" parent="MeshInstance3D"]
+
+[node name="MicPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="PetController" type="Node" parent="."]
