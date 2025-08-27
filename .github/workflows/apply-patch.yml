@@ -1,0 +1,34 @@
+name: Apply patch from comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  apply-patch:
+    if: startsWith(github.event.comment.body, '/apply-patch')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Extract patch from comment
+        run: |
+          echo "${{ github.event.comment.body }}" | sed -n '/^```/,/^```/p' | sed '1d;$d' > patch.diff
+          echo "---- PATCH START ----"
+          cat patch.diff
+          echo "---- PATCH END ----"
+      - name: Apply patch
+        run: |
+          git apply --whitespace=fix patch.diff || (echo "Patch apply failed"; cat patch.diff; exit 1)
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Apply patch from comment" || echo "No changes to commit"
+          git push
