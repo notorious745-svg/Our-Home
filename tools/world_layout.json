@@ -1,0 +1,21 @@
+{
+  "cell_size": [6, 0, 6],
+  "rows": [
+    "AAA..BBB..TTTT",
+    "A..T..B...T..T",
+    "A..T..B...T..T",
+    "AAA..BBB..TTTT"
+  ],
+  "stamps": {
+    "A": "res://assets/env/buildings/A.tscn",
+    "B": "res://assets/env/buildings/B.tscn",
+    "T": "res://assets/env/trees/Tree01.tscn",
+    ".": ""
+  },
+  "random_yaw_on": ["T"],
+  "place": [
+    { "scene": "res://core/ScenePortal.tscn", "at": [24, 0, 6], "set": { "target_scene": "shop" } },
+    { "scene": "res://core/ScenePortal.tscn", "at": [0, 0, 18],  "set": { "target_scene": "park" } }
+  ],
+  "add_light": true
+}

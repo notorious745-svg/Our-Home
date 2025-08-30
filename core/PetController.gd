@@ -1,39 +1,62 @@
-# res://core/PetController.gd
 extends Node
-class_name PetController
+# Facade: เปลี่ยนพฤติกรรม/สายพันธุ์/อายุ + เช็คปลดล็อกฟีเจอร์
 
-@export var pet_node: NodePath                    # points to node with set_mood()
-@export var use_anim_tree: bool = false
-@export var anim_tree_path: NodePath
+@export var pet_node_path: NodePath
+@export var default_breed: BreedResource
+@export var age_months: float = 6.0              # ตั้งอายุเริ่มต้นที่นี่
 
-const MOODS := { "IDLE": "idle", "HAPPY": "happy", "SAD": "sad" }
+@export var min_switch_ms := 180
 
-var _pet: Node = null
-var _tree: AnimationTree = null
+@onready var _pet: Node = get_node_or_null(pet_node_path)
+
+var _current: String = "idle"
+var _last_switch_ms: int = 0
 
 func _ready() -> void:
-	if pet_node != NodePath():
-		_pet = get_node_or_null(pet_node)
-	if use_anim_tree and anim_tree_path != NodePath():
-		_tree = get_node_or_null(anim_tree_path)
-	if Engine.has_singleton("PetMemory"):
-		PetMemory.mood_changed.connect(_on_global_mood_changed)
-
-func _on_global_mood_changed(m: String, intensity: float) -> void:
-	set_mood(m, intensity)
-
-func set_mood(mood: String, intensity: float = 0.0) -> void:
-	if _pet and _pet.has_method("set_mood"):
-		_pet.call("set_mood", mood)
+	if _pet == null:
+		push_warning("Pet node not set.")
 		return
-	if use_anim_tree and _tree:
-		_tree.set("parameters/mood/current", mood)
-		_tree.set("parameters/speed_scale", 1.0 + 0.3 * clamp(intensity, 0.0, 1.0))
+	if default_breed:
+		set_breed(default_breed)
+	set_age_months(age_months) # กระจายอายุไปให้ตัวน้อง
+	set_behavior("idle")
+
+# ---------- Age ----------
+func set_age_months(mo: float) -> void:
+	age_months = max(mo, 0.0)
+	if _pet and _pet.has_method("set_age_months"):
+		_pet.call("set_age_months", age_months)
+
+func get_age_stage() -> String:
+	if _pet and _pet.has_method("get_age_stage"):
+		return String(_pet.call("get_age_stage"))
+	return "adult"
+
+# ---------- Breed ----------
+func set_breed(breed: BreedResource) -> void:
+	if _pet and _pet.has_method("load_breed"):
+		_pet.call("load_breed", breed)
+		# เมื่อเปลี่ยนสายพันธุ์ ให้รีเฟรชช่วงวัยตามอายุปัจจุบัน
+		set_age_months(age_months)
+
+# ---------- Behavior ----------
+func set_mood(mood: String) -> void:
+	set_behavior(mood)
+
+func set_behavior(behavior: String) -> void:
+	if _pet == null: return
+	var now: int = Time.get_ticks_msec()
+	if behavior == _current and (now - _last_switch_ms) < min_switch_ms:
 		return
-	push_warning("PetController: no target bound; mood not applied.")
+	_last_switch_ms = now
+	_current = behavior
+	if _pet.has_method("set_behavior"):
+		_pet.call("set_behavior", behavior)
+	elif _pet.has_method("set_mood"):
+		_pet.call("set_mood", behavior)
 
-func perform_action(_action: String) -> void:
-	pass
-
-func set_breed(_breed_id: String) -> void:
-	pass
+# ---------- Feature unlock ----------
+func can_do(feature: String) -> bool:
+	if _pet and _pet.has_method("can_do"):
+		return bool(_pet.call("can_do", feature))
+	return true

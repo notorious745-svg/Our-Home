@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://d0d6sona2watx"]
+[gd_scene load_steps=5 format=3 uid="uid://d0d6sona2watx"]
 
+[ext_resource type="Script" uid="uid://dwtjmrxfnvyr8" path="res://Pet.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://b3gh4n2qlq4q5" path="res://Main.gd" id="2_tz3c8"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7dm0k"]
@@ -22,7 +23,9 @@ surface_material_override/0 = SubResource("StandardMaterial3D_7dm0k")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="MeshInstance3D"]
 
-[node name="Pet" type="Node" parent="MeshInstance3D"]
+[node name="Pet" type="Node3D" parent="MeshInstance3D"]
+script = ExtResource("2_0xm2m")
+animation_player_path = NodePath("../AnimationPlayer")
 
 [node name="MicPlayer" type="AudioStreamPlayer" parent="."]
 
