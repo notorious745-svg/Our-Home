@@ -1,3 +1,14 @@
-# Godot 4+ specific ignores
+# Godot
 .godot/
-/android/
+.import/
+.export/
+*.tmp
+
+# OS / IDE
+Thumbs.db
+.DS_Store
+
+# Blender
+*.blend1
+*.blend2
+__pycache__/
